@@ -178,7 +178,7 @@
       <button id="miniPlayPauseBtn" class="w-10 h-10 flex items-center justify-center text-[#1db954] text-xl">
         <i class="fas fa-play"></i>
       </button>
-      <button id="miniCloseBtn" class="text-gray-400 hover:text-white px-2">
+      <button id="miniCloseBtn" class="text-gray-500 hover:text-white px-2">
         <i class="fas fa-xmark"></i>
       </button>
     </div>
@@ -218,7 +218,6 @@
       </div>
     `;
 
-    // --- SKELETON ---
     function showSkeleton() {
       const skeletonHTML = `<div class="animate-pulse bg-[#181818] p-4 rounded-2xl border border-white/5 shadow-xl">
         <div class="bg-white/5 rounded-xl aspect-square mb-4"></div>
@@ -235,29 +234,31 @@
       return `${mins}:${secs < 10 ? "0" : ""}${secs}`;
     }
 
-    // --- SAVE & RESTORE LOGIC ---
     function saveLastPlayed(track) {
       localStorage.setItem("lastPlayedTrack", JSON.stringify(track));
     }
 
+    // --- FIX WEBVIEW RESTORE ---
     function restoreLastPlayed() {
       const saved = localStorage.getItem("lastPlayedTrack");
       if (saved) {
         const track = JSON.parse(saved);
         activeTrackUrl = track.track_url;
         
-        // Update Mini Player UI
         document.getElementById("miniTitle").textContent = track.title;
         document.getElementById("miniCover").src = track.thumbnail;
-        
-        // Update Modal Player UI (Persiapan jika dibuka)
         playerTitle.textContent = track.title;
         playerArtist.textContent = track.artist;
         playerCover.src = track.thumbnail;
 
-        // Tampilkan Mini Player
         miniPlayer.classList.remove("hidden");
         setTimeout(() => miniPlayer.style.transform = "translateY(0)", 100);
+
+        // SYNC STATUS: Cek apakah audio sebenernya lagi jalan di background
+        if (!audioPlayer.paused && audioPlayer.src) {
+           isPlaying = true;
+           updateUI();
+        }
       }
     }
 
@@ -283,14 +284,9 @@
         
         card.onclick = () => {
           if (track.track_url === activeTrackUrl) {
-            if (!audioPlayer.src) { // Jika baru di-restore tapi belum di-load audionya
-                openPlayer(index);
-            } else {
-                playerModal.classList.remove("hidden");
-            }
-          } else {
-            openPlayer(index);
-          }
+            if (!audioPlayer.src) { openPlayer(index); } 
+            else { playerModal.classList.remove("hidden"); }
+          } else { openPlayer(index); }
         };
         playlistContainer.appendChild(card);
       });
@@ -309,8 +305,6 @@
       if (!playlistData[index]) return;
       currentIndex = index;
       activeTrackUrl = playlistData[index].track_url;
-      
-      // Simpan lagu ke LocalStorage
       saveLastPlayed(playlistData[index]);
       
       playerModal.classList.remove("hidden");
@@ -341,42 +335,47 @@
       } catch (error) { playerLoading.classList.add("hidden"); }
     }
 
+    // --- AUDIO EVENT SYNC ---
+    audioPlayer.onplay = () => {
+        isPlaying = true;
+        updateUI();
+    };
+    audioPlayer.onpause = () => {
+        isPlaying = false;
+        updateUI();
+    };
+
     function playAudio() {
       if (!audioPlayer.src && activeTrackUrl) {
-        // Jika miniplayer ada (restore) tapi belum di-play sama sekali
         const saved = JSON.parse(localStorage.getItem("lastPlayedTrack"));
         const idx = playlistData.findIndex(t => t.track_url === activeTrackUrl);
         if (idx !== -1) { openPlayer(idx); } 
-        else { 
-            // Kalau lagu ga ada di playlist saat ini, kita fetch ulang downloadnya
-            fetchDownloadForRestore();
-        }
+        else { fetchDownloadForRestore(); }
         return;
       }
-      audioPlayer.play();
-      isPlaying = true;
-      updateUI();
+      audioPlayer.play().catch(e => console.log("User interaction required"));
     }
 
     async function fetchDownloadForRestore() {
         const saved = JSON.parse(localStorage.getItem("lastPlayedTrack"));
+        if(!saved) return;
         playerLoading.classList.remove("hidden");
         playerModal.classList.remove("hidden");
-        const res = await fetch(`https://apikuu-black.vercel.app/api/download/spotify?url=${encodeURIComponent(saved.track_url)}`);
-        const json = await res.json();
-        if (json.download) {
-            audioPlayer.src = json.download;
-            audioPlayer.onloadedmetadata = () => {
-                playerLoading.classList.add("hidden");
-                playAudio();
-            };
-        }
+        try {
+            const res = await fetch(`https://apikuu-black.vercel.app/api/download/spotify?url=${encodeURIComponent(saved.track_url)}`);
+            const json = await res.json();
+            if (json.download) {
+                audioPlayer.src = json.download;
+                audioPlayer.onloadedmetadata = () => {
+                    playerLoading.classList.add("hidden");
+                    playAudio();
+                };
+            }
+        } catch(e) { playerLoading.classList.add("hidden"); }
     }
 
     function pauseAudio() {
       audioPlayer.pause();
-      isPlaying = false;
-      updateUI();
     }
 
     function updateUI() {
@@ -393,11 +392,8 @@
     };
 
     miniPlayer.onclick = () => {
-      if (!audioPlayer.src) {
-          fetchDownloadForRestore();
-      } else {
-          playerModal.classList.remove("hidden");
-      }
+      if (!audioPlayer.src) { fetchDownloadForRestore(); } 
+      else { playerModal.classList.remove("hidden"); }
     };
 
     audioPlayer.ontimeupdate = () => {
@@ -422,7 +418,7 @@
       e.stopPropagation();
       pauseAudio();
       activeTrackUrl = "";
-      localStorage.removeItem("lastPlayedTrack"); // Hapus memori saat klik silang
+      localStorage.removeItem("lastPlayedTrack");
       miniPlayer.style.transform = "translateY(150%)";
       setTimeout(() => miniPlayer.classList.add("hidden"), 500);
       renderPlaylist(playlistData);
@@ -431,7 +427,15 @@
     document.getElementById("prevBtn").onclick = () => currentIndex > 0 && openPlayer(currentIndex - 1);
     document.getElementById("nextBtn").onclick = () => currentIndex < playlistData.length - 1 && openPlayer(currentIndex + 1);
 
-    // RESTORE LAGU TERAKHIR SAAT BUKA BROWSER
+    // --- HEARTBEAT CHECK ---
+    // Cek setiap 1 detik apakah audio aslinya jalan atau nggak
+    setInterval(() => {
+        if (audioPlayer.src && !audioPlayer.paused && !isPlaying) {
+            isPlaying = true;
+            updateUI();
+        }
+    }, 1000);
+
     window.addEventListener("DOMContentLoaded", () => {
       restoreLastPlayed();
       fetchSongs("Top Hits Indonesia 2026");

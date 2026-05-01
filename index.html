@@ -22,7 +22,6 @@
       -webkit-backdrop-filter: blur(12px);
     }
 
-    /* Music Card */
     .music-card {
       transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
       border: 1px solid transparent;
@@ -37,7 +36,6 @@
       transform: translateY(-5px);
     }
 
-    /* --- GLOBAL MARQUEE ANIMATION --- */
     .marquee-container {
       width: 100%;
       overflow: hidden;
@@ -55,7 +53,6 @@
       100% { transform: translateX(-100%); }
     }
 
-    /* Progress Bar Statis */
     .progress-container {
       width: 100%;
       height: 5px;
@@ -80,7 +77,6 @@
     }
     @keyframes spin { to { transform: rotate(360deg); } }
 
-    /* Equalizer Bars */
     @keyframes eq-pulse {
       0%, 100% { height: 10%; }
       50% { height: 100%; }
@@ -182,7 +178,7 @@
       <button id="miniPlayPauseBtn" class="w-10 h-10 flex items-center justify-center text-[#1db954] text-xl">
         <i class="fas fa-play"></i>
       </button>
-      <button id="miniCloseBtn" class="text-gray-500 hover:text-white px-2">
+      <button id="miniCloseBtn" class="text-gray-400 hover:text-white px-2">
         <i class="fas fa-xmark"></i>
       </button>
     </div>
@@ -212,6 +208,17 @@
     let isPlaying = false;
     let activeTrackUrl = "";
 
+    const equalizerHTML = `
+      <div class="flex space-x-1 justify-center items-end h-8">
+        <div class="w-1.5 h-4 bg-lime-500 eq-bar" style="animation-delay: -0.4s"></div>
+        <div class="w-1.5 h-6 bg-lime-500 eq-bar" style="animation-delay: -0.2s"></div>
+        <div class="w-1.5 h-8 bg-lime-500 eq-bar"></div>
+        <div class="w-1.5 h-6 bg-lime-500 eq-bar" style="animation-delay: -0.2s"></div>
+        <div class="w-1.5 h-4 bg-lime-500 eq-bar" style="animation-delay: -0.4s"></div>
+      </div>
+    `;
+
+    // --- SKELETON ---
     function showSkeleton() {
       const skeletonHTML = `<div class="animate-pulse bg-[#181818] p-4 rounded-2xl border border-white/5 shadow-xl">
         <div class="bg-white/5 rounded-xl aspect-square mb-4"></div>
@@ -228,15 +235,31 @@
       return `${mins}:${secs < 10 ? "0" : ""}${secs}`;
     }
 
-    const equalizerHTML = `
-      <div class="flex space-x-1 justify-center items-end h-8">
-        <div class="w-1.5 h-4 bg-lime-500 eq-bar" style="animation-delay: -0.4s"></div>
-        <div class="w-1.5 h-6 bg-lime-500 eq-bar" style="animation-delay: -0.2s"></div>
-        <div class="w-1.5 h-8 bg-lime-500 eq-bar"></div>
-        <div class="w-1.5 h-6 bg-lime-500 eq-bar" style="animation-delay: -0.2s"></div>
-        <div class="w-1.5 h-4 bg-lime-500 eq-bar" style="animation-delay: -0.4s"></div>
-      </div>
-    `;
+    // --- SAVE & RESTORE LOGIC ---
+    function saveLastPlayed(track) {
+      localStorage.setItem("lastPlayedTrack", JSON.stringify(track));
+    }
+
+    function restoreLastPlayed() {
+      const saved = localStorage.getItem("lastPlayedTrack");
+      if (saved) {
+        const track = JSON.parse(saved);
+        activeTrackUrl = track.track_url;
+        
+        // Update Mini Player UI
+        document.getElementById("miniTitle").textContent = track.title;
+        document.getElementById("miniCover").src = track.thumbnail;
+        
+        // Update Modal Player UI (Persiapan jika dibuka)
+        playerTitle.textContent = track.title;
+        playerArtist.textContent = track.artist;
+        playerCover.src = track.thumbnail;
+
+        // Tampilkan Mini Player
+        miniPlayer.classList.remove("hidden");
+        setTimeout(() => miniPlayer.style.transform = "translateY(0)", 100);
+      }
+    }
 
     function renderPlaylist(items) {
       playlistData = items;
@@ -244,7 +267,6 @@
       items.forEach((track, index) => {
         const card = document.createElement("div");
         const isCurrent = track.track_url === activeTrackUrl;
-        
         card.className = `music-card p-4 rounded-2xl cursor-pointer group shadow-xl ${isCurrent ? 'is-playing' : ''}`;
         
         card.innerHTML = `
@@ -261,7 +283,11 @@
         
         card.onclick = () => {
           if (track.track_url === activeTrackUrl) {
-            playerModal.classList.remove("hidden");
+            if (!audioPlayer.src) { // Jika baru di-restore tapi belum di-load audionya
+                openPlayer(index);
+            } else {
+                playerModal.classList.remove("hidden");
+            }
           } else {
             openPlayer(index);
           }
@@ -281,9 +307,11 @@
 
     async function openPlayer(index) {
       if (!playlistData[index]) return;
-      
       currentIndex = index;
       activeTrackUrl = playlistData[index].track_url;
+      
+      // Simpan lagu ke LocalStorage
+      saveLastPlayed(playlistData[index]);
       
       playerModal.classList.remove("hidden");
       playerLoading.classList.remove("hidden");
@@ -314,9 +342,35 @@
     }
 
     function playAudio() {
+      if (!audioPlayer.src && activeTrackUrl) {
+        // Jika miniplayer ada (restore) tapi belum di-play sama sekali
+        const saved = JSON.parse(localStorage.getItem("lastPlayedTrack"));
+        const idx = playlistData.findIndex(t => t.track_url === activeTrackUrl);
+        if (idx !== -1) { openPlayer(idx); } 
+        else { 
+            // Kalau lagu ga ada di playlist saat ini, kita fetch ulang downloadnya
+            fetchDownloadForRestore();
+        }
+        return;
+      }
       audioPlayer.play();
       isPlaying = true;
       updateUI();
+    }
+
+    async function fetchDownloadForRestore() {
+        const saved = JSON.parse(localStorage.getItem("lastPlayedTrack"));
+        playerLoading.classList.remove("hidden");
+        playerModal.classList.remove("hidden");
+        const res = await fetch(`https://apikuu-black.vercel.app/api/download/spotify?url=${encodeURIComponent(saved.track_url)}`);
+        const json = await res.json();
+        if (json.download) {
+            audioPlayer.src = json.download;
+            audioPlayer.onloadedmetadata = () => {
+                playerLoading.classList.add("hidden");
+                playAudio();
+            };
+        }
     }
 
     function pauseAudio() {
@@ -339,7 +393,11 @@
     };
 
     miniPlayer.onclick = () => {
-      playerModal.classList.remove("hidden");
+      if (!audioPlayer.src) {
+          fetchDownloadForRestore();
+      } else {
+          playerModal.classList.remove("hidden");
+      }
     };
 
     audioPlayer.ontimeupdate = () => {
@@ -364,15 +422,20 @@
       e.stopPropagation();
       pauseAudio();
       activeTrackUrl = "";
+      localStorage.removeItem("lastPlayedTrack"); // Hapus memori saat klik silang
       miniPlayer.style.transform = "translateY(150%)";
+      setTimeout(() => miniPlayer.classList.add("hidden"), 500);
       renderPlaylist(playlistData);
     };
 
     document.getElementById("prevBtn").onclick = () => currentIndex > 0 && openPlayer(currentIndex - 1);
     document.getElementById("nextBtn").onclick = () => currentIndex < playlistData.length - 1 && openPlayer(currentIndex + 1);
 
-    // Pencarian default
-    fetchSongs("Top Hits Indonesia 2026");
+    // RESTORE LAGU TERAKHIR SAAT BUKA BROWSER
+    window.addEventListener("DOMContentLoaded", () => {
+      restoreLastPlayed();
+      fetchSongs("Top Hits Indonesia 2026");
+    });
 
     let timer;
     searchInput.oninput = (e) => {

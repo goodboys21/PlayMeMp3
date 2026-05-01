@@ -1,20 +1,19 @@
-<!DOCTYPE html>
 <html lang="en">
-<head>
-  <meta charset="utf-8" />
-  <meta content="width=device-width, initial-scale=1" name="viewport" />
+ <head>
+  <meta charset="utf-8"/>
+  <meta content="width=device-width, initial-scale=1" name="viewport"/>
   <title>PlayGood || Free Music Area</title>
-  <script src="https://cdn.tailwindcss.com"></script>
-  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css" rel="stylesheet" />
-  <link href="https://fonts.googleapis.com/css2?family=Varela+Round&amp;display=swap" rel="stylesheet" />
+  <script src="https://cdn.tailwindcss.com">
+  </script>
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css" rel="stylesheet"/>
+  <link href="https://fonts.googleapis.com/css2?family=Varela+Round&amp;display=swap" rel="stylesheet"/>
   <style>
-    body {
+   body {
       font-family: "Varela Round", sans-serif;
     }
-    /* Scrollbar untuk playlist */
+    /* Scrollbar for playlist */
     ::-webkit-scrollbar {
       height: 6px;
-      width: 6px;
     }
     ::-webkit-scrollbar-track {
       background: #121212;
@@ -23,7 +22,7 @@
       background-color: #1db954;
       border-radius: 10px;
     }
-    /* Marquee animation untuk judul lagu panjang */
+    /* Marquee animation for music titles */
     .marquee {
       overflow: hidden;
       white-space: nowrap;
@@ -42,7 +41,7 @@
         transform: translateX(-100%);
       }
     }
-    /* Spinner loading */
+    /* Spinner */
     .spinner {
       border: 4px solid rgba(255, 255, 255, 0.1);
       border-left-color: #1db954;
@@ -57,559 +56,444 @@
         transform: rotate(360deg);
       }
     }
-    /* Tombol disabled style */
-    button:disabled {
-      opacity: 0.5;
-      cursor: not-allowed;
-    }
-    /* Animasi fade untuk modal */
-    .fade-in {
-      animation: fadeIn 0.2s ease-out;
-    }
-    @keyframes fadeIn {
-      from {
-        opacity: 0;
-        transform: scale(0.98);
-      }
-      to {
-        opacity: 1;
-        transform: scale(1);
-      }
+    /* Adjust loading text margin */
+    #playerLoading p {
+      margin-top: 0.5rem;
     }
   </style>
-</head>
-<body class="bg-[#121212] text-white min-h-screen flex flex-col">
+ </head>
+ <body class="bg-[#121212] text-white min-h-screen flex flex-col">
   <header class="flex items-center justify-between px-6 py-4 border-b border-gray-800 bg-[#181818]">
-    <h1 class="text-2xl font-bold tracking-wide text-[#1db954] select-none">PlayGood</h1>
-    <div class="flex items-center space-x-6 text-sm font-medium text-gray-400 select-none">
-      <span class="hidden sm:inline-block text-xs">🎵 Free Music Stream</span>
-    </div>
+   <h1 class="text-2xl font-bold tracking-wide text-[#1db954] select-none">
+    PlayGood
+   </h1>
+   <div class="flex items-center space-x-6 text-sm font-medium text-gray-400 select-none">
+   </div>
   </header>
-
   <main class="flex-grow px-6 py-8 max-w-6xl mx-auto w-full flex flex-col">
-    <div class="w-full max-w-xl mx-auto block">
-      <label class="sr-only" for="searchInput">Search Your Music</label>
-      <div class="relative text-gray-400 focus-within:text-[#1db954]">
-        <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-          <i class="fas fa-search"></i>
-        </div>
-        <input
-          aria-label="Search Your Music"
-          autocapitalize="off"
-          autocomplete="off"
-          autocorrect="off"
-          class="block w-full bg-[#282828] rounded-full py-3 pl-10 pr-4 text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-[#1db954] transition shadow-sm text-base font-semibold"
-          id="searchInput"
-          placeholder="Cari lagu favoritmu..."
-          spellcheck="false"
-          type="search"
-          value="CLBK"
-        />
-      </div>
+   <div class="w-full max-w-xl mx-auto block">
+    <label class="sr-only" for="searchInput">
+     Search Your Music
+    </label>
+    <div class="relative text-gray-400 focus-within:text-[#1db954]">
+     <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+      <i class="fas fa-search">
+      </i>
+     </div>
+     <input aria-label="Search Your Music" autocapitalize="off" autocomplete="off" autocorrect="off" class="block w-full bg-[#282828] rounded-full py-3 pl-10 pr-4 text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-[#1db954] transition shadow-sm text-base font-semibold" id="searchInput" placeholder="Search your music" spellcheck="false" type="search"/>
     </div>
-
-    <h2 class="text-[#b3b3b3] font-semibold mb-4 select-none text-base uppercase tracking-wide mt-8 flex items-center gap-2">
-      <i class="fas fa-headphones text-[#1db954] text-sm"></i> Recomendasi
-    </h2>
-    <section
-      aria-label="Music Recommendations"
-      aria-live="polite"
-      class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-5 max-w-6xl mx-auto overflow-y-auto"
-      id="playlist"
-      style="max-height: 65vh;"
-    ></section>
+   </div>
+   <h2 class="text-[#b3b3b3] font-semibold mb-4 select-none text-base uppercase tracking-wide mt-8">
+    recomend
+   </h2>
+   <section aria-label="Music Recommendations" aria-live="polite" class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-5 max-w-6xl mx-auto overflow-y-auto" id="playlist" style="max-height: 65vh;">
+   </section>
   </main>
-
-  <!-- Player Modal Utama -->
-  <div
-    aria-labelledby="playerTitle"
-    aria-modal="true"
-    class="fixed inset-0 bg-black bg-opacity-95 backdrop-blur-md flex items-center justify-center p-4 z-50 hidden"
-    id="playerModal"
-    role="dialog"
-  >
-    <div class="bg-[#181818] rounded-2xl max-w-md w-full p-6 flex flex-col items-center space-y-8 relative min-h-[520px] shadow-2xl border border-gray-800 fade-in">
-      <button aria-label="Close player" class="absolute top-4 right-4 text-gray-400 hover:text-white text-2xl z-50 transition" id="closePlayer">
-        <i class="fas fa-times"></i>
-      </button>
-      <div class="w-full flex flex-col items-center space-y-8" id="playerContent">
-        <div class="w-32 h-32 rounded-xl overflow-hidden shadow-xl flex items-center justify-center bg-gradient-to-br from-[#1db954] to-[#0e7c36]">
-          <img alt="Music cover" class="rounded-xl w-full h-full object-cover" id="playerCover" src="https://storage.googleapis.com/a1aa/image/c6ba59c6-4c71-45d0-4a04-4cacae1ad5b7.jpg" />
-        </div>
-        <section class="w-full">
-          <div class="flex items-center justify-between mb-2">
-            <h2 class="text-white text-2xl font-bold leading-none select-none capitalize truncate max-w-[80%]" id="playerTitle">Loading...</h2>
-            <button aria-label="Download lagu" class="text-white text-2xl hover:text-[#1db954] transition disabled:opacity-50" id="downloadBtn">
-              <i class="fas fa-download"></i>
-            </button>
-          </div>
-          <div class="flex items-center space-x-2 mb-5">
-            <div class="bg-[#1db954] rounded-sm p-[2px]">
-              <svg class="h-4 w-4 text-white" fill="none" stroke="currentColor" stroke-width="3" viewBox="0 0 24 24">
-                <path d="M5 13l4 4L19 7" stroke-linecap="round" stroke-linejoin="round" />
-              </svg>
-            </div>
-            <p class="text-gray-300 font-sans text-base select-text" id="playerArtist">Loading artist...</p>
-          </div>
-
-          <div>
-            <input aria-label="Song progress" class="w-full accent-[#1db954] cursor-pointer" id="progressBar" max="100" min="0" type="range" value="0" />
-            <div class="flex justify-between text-gray-400 text-xs font-sans mt-1 select-none">
-              <span id="currentTime">0:00</span>
-              <span id="durationTime">0:00</span>
-            </div>
-          </div>
-
-          <div class="flex justify-center items-center space-x-12 mt-8">
-            <button aria-label="Previous" class="text-white text-3xl hover:text-[#1db954] transition disabled:hover:text-white" id="prevBtn">
-              <i class="fas fa-step-backward"></i>
-            </button>
-            <button aria-label="Play" class="bg-[#1db954] text-black rounded-full w-16 h-16 flex items-center justify-center text-3xl shadow-lg hover:bg-[#17a44c] transition transform hover:scale-105" id="playPauseBtn">
-              <i class="fas fa-play"></i>
-            </button>
-            <button aria-label="Next" class="text-white text-3xl hover:text-[#1db954] transition disabled:hover:text-white" id="nextBtn">
-              <i class="fas fa-step-forward"></i>
-            </button>
-          </div>
-        </section>
+  <!-- Player Modal -->
+  <div aria-labelledby="playerTitle" aria-modal="true" class="fixed inset-0 bg-black bg-opacity-90 backdrop-blur-sm flex items-center justify-center p-4 z-50 hidden" id="playerModal" role="dialog">
+   <div class="bg-[#181818] rounded-xl max-w-md w-full p-6 flex flex-col items-center space-y-8 relative min-h-[520px]">
+    <button aria-label="Close player" class="absolute top-4 right-4 text-gray-400 hover:text-white text-2xl z-50" id="closePlayer">
+     <i class="fas fa-times">
+     </i>
+    </button>
+    <div class="w-full flex flex-col items-center space-y-8" id="playerContent">
+     <div class="w-28 h-28 rounded-md overflow-hidden flex items-center justify-center bg-[#1db954]">
+      <img alt="Music cover" class="rounded-xl w-full object-cover" height="400" id="playerCover" src="https://storage.googleapis.com/a1aa/image/c6ba59c6-4c71-45d0-4a04-4cacae1ad5b7.jpg" width="400"/>
+     </div>
+     <section class="w-full">
+      <div class="flex items-center justify-between mb-2">
+       <h2 class="text-white text-2xl font-bold leading-none select-none capitalize" id="playerTitle">
+        Loading...
+       </h2>
+       <button aria-label="Download" class="text-white text-2xl hover:text-[#1db954] transition disabled:opacity-50" disabled="" id="downloadBtn">
+        <i class="fas fa-download">
+        </i>
+       </button>
       </div>
-      <div class="flex flex-col items-center justify-center w-full h-full absolute inset-0 bg-[#181818] bg-opacity-95 rounded-2xl" id="playerLoading">
-        <div aria-label="Loading music" class="spinner" role="status"></div>
-        <p class="text-gray-400 text-sm mt-4">Memuat lagu...</p>
+      <div class="flex items-center space-x-2 mb-4">
+       <div class="bg-[#1db954] rounded-sm p-[2px]">
+        <svg class="h-4 w-4 text-white" fill="none" stroke="currentColor" stroke-width="3" viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+         <path d="M5 13l4 4L19 7" stroke-linecap="round" stroke-linejoin="round">
+         </path>
+        </svg>
+       </div>
+       <p class="text-gray-300 font-sans text-base select-text" id="playerArtist">
+        Loading artist...
+       </p>
       </div>
-      <audio id="audioPlayer" preload="metadata"></audio>
+      <div>
+       <input aria-label="Song progress" class="w-full accent-[#1db954]" id="progressBar" max="100" min="0" type="range" value="0"/>
+       <div class="flex justify-between text-gray-400 text-xs font-sans mt-1 select-none">
+        <span id="currentTime">
+         0:00
+        </span>
+        <span id="durationTime">
+         0:00
+        </span>
+       </div>
+      </div>
+      <div class="flex justify-center items-center space-x-12 mt-8">
+       <button aria-label="Previous" class="text-white text-3xl hover:text-[#1db954] transition" disabled="" id="prevBtn">
+        <i class="fas fa-step-backward">
+        </i>
+       </button>
+       <button aria-label="Play" class="bg-[#1db954] text-black rounded-full w-16 h-16 flex items-center justify-center text-3xl shadow-lg hover:bg-[#17a44c] transition" disabled="" id="playPauseBtn">
+        <i class="fas fa-play">
+        </i>
+       </button>
+       <button aria-label="Next" class="text-white text-3xl hover:text-[#1db954] transition" disabled="" id="nextBtn">
+        <i class="fas fa-step-forward">
+        </i>
+       </button>
+      </div>
+     </section>
     </div>
+    <div class="flex flex-col items-center justify-center w-full h-full absolute inset-0 bg-[#181818] bg-opacity-90 rounded-xl" id="playerLoading">
+     <div aria-label="Loading music" class="spinner" role="status">
+     </div>
+    </div>
+    <audio id="audioPlayer" preload="metadata">
+    </audio>
+   </div>
   </div>
-
-  <!-- Mini Player Bottom -->
+  <!-- Mini Player -->
   <div class="fixed bottom-0 left-0 right-0 bg-[#181818] border-t border-gray-800 flex items-center px-4 py-2 space-x-4 z-50 hidden" id="miniPlayer">
-    <img alt="Mini player cover art" class="w-12 h-12 rounded-md object-cover shadow-md" id="miniCover" src="https://storage.googleapis.com/a1aa/image/4dbd2801-38e0-4600-b4a9-7f37e20ad2ed.jpg" />
-    <div class="flex-1 min-w-0">
-      <p class="text-white font-semibold text-sm truncate select-none" id="miniTitle">Tidak ada lagu</p>
-      <p class="text-gray-400 text-xs truncate select-none" id="miniArtist">-</p>
-      <input aria-label="Mini player progress" class="w-full accent-[#1db954] mt-1 h-1" id="miniProgressBar" max="100" min="0" type="range" value="0" />
-    </div>
-    <button aria-label="Mini player play/pause" class="text-[#1db954] text-2xl focus:outline-none hover:scale-110 transition" id="miniPlayPauseBtn">
-      <i class="fas fa-play"></i>
-    </button>
-    <button aria-label="Mini player close" class="text-gray-400 hover:text-white text-xl focus:outline-none transition" id="miniCloseBtn">
-      <i class="fas fa-times"></i>
-    </button>
+   <img alt="Mini player cover art" class="w-14 h-14 rounded-md object-cover flex-shrink-0" height="56" id="miniCover" src="https://storage.googleapis.com/a1aa/image/4dbd2801-38e0-4600-b4a9-7f37e20ad2ed.jpg" width="56"/>
+   <div class="flex-1 min-w-0">
+    <p class="text-white font-semibold truncate select-none" id="miniTitle">
+     No song playing
+    </p>
+    <p class="text-gray-400 text-sm truncate select-none" id="miniArtist">
+     -
+    </p>
+    <input aria-label="Mini player progress" class="w-full accent-[#1db954] mt-1" id="miniProgressBar" max="100" min="0" type="range" value="0"/>
+   </div>
+   <button aria-label="Mini player play/pause" class="text-[#1db954] text-2xl focus:outline-none" id="miniPlayPauseBtn">
+    <i class="fas fa-play">
+    </i>
+   </button>
+   <button aria-label="Mini player close" class="text-gray-400 hover:text-white text-xl focus:outline-none" id="miniCloseBtn">
+    <i class="fas fa-times">
+    </i>
+   </button>
   </div>
-
   <script>
-    // ======================== DOM Elements ========================
-    const playlistContainer = document.getElementById("playlist");
-    const searchInput = document.getElementById("searchInput");
-    const playerModal = document.getElementById("playerModal");
-    const closePlayerBtn = document.getElementById("closePlayer");
-    const playerCover = document.getElementById("playerCover");
-    const playerTitle = document.getElementById("playerTitle");
-    const playerArtist = document.getElementById("playerArtist");
-    const downloadBtn = document.getElementById("downloadBtn");
-    const progressBar = document.getElementById("progressBar");
-    const currentTimeEl = document.getElementById("currentTime");
-    const durationTimeEl = document.getElementById("durationTime");
-    const playPauseBtn = document.getElementById("playPauseBtn");
-    const prevBtn = document.getElementById("prevBtn");
-    const nextBtn = document.getElementById("nextBtn");
-    const audioPlayer = document.getElementById("audioPlayer");
-    const playerLoading = document.getElementById("playerLoading");
-    const playerContent = document.getElementById("playerContent");
+   const playlistContainer = document.getElementById("playlist");
+  const searchInput = document.getElementById("searchInput");
+  const playerModal = document.getElementById("playerModal");
+  const closePlayerBtn = document.getElementById("closePlayer");
+  const playerCover = document.getElementById("playerCover");
+  const playerTitle = document.getElementById("playerTitle");
+  const playerArtist = document.getElementById("playerArtist");
+  const downloadBtn = document.getElementById("downloadBtn");
+  const progressBar = document.getElementById("progressBar");
+  const currentTimeEl = document.getElementById("currentTime");
+  const durationTimeEl = document.getElementById("durationTime");
+  const playPauseBtn = document.getElementById("playPauseBtn");
+  const prevBtn = document.getElementById("prevBtn");
+  const nextBtn = document.getElementById("nextBtn");
+  const audioPlayer = document.getElementById("audioPlayer");
+  const playerLoading = document.getElementById("playerLoading");
+  const playerContent = document.getElementById("playerContent");
 
-    // Mini player elements
-    const miniPlayer = document.getElementById("miniPlayer");
-    const miniCover = document.getElementById("miniCover");
-    const miniTitle = document.getElementById("miniTitle");
-    const miniArtist = document.getElementById("miniArtist");
-    const miniPlayPauseBtn = document.getElementById("miniPlayPauseBtn");
-    const miniCloseBtn = document.getElementById("miniCloseBtn");
-    const miniProgressBar = document.getElementById("miniProgressBar");
+  // Mini player elements
+  const miniPlayer = document.getElementById("miniPlayer");
+  const miniCover = document.getElementById("miniCover");
+  const miniTitle = document.getElementById("miniTitle");
+  const miniArtist = document.getElementById("miniArtist");
+  const miniPlayPauseBtn = document.getElementById("miniPlayPauseBtn");
+  const miniCloseBtn = document.getElementById("miniCloseBtn");
+  const miniProgressBar = document.getElementById("miniProgressBar");
 
-    // ======================== Global State ========================
-    let playlistData = [];         // array of song objects (dari API search)
-    let currentIndex = -1;
-    let isPlaying = false;
-    let currentDownloadUrl = null; // menyimpan link download sementara
+  let playlistData = [];
+  let currentIndex = -1;
+  let isPlaying = false;
 
-    // Helper: Format detik ke MM:SS
-    function formatTime(seconds) {
-      if (isNaN(seconds)) return "0:00";
-      const mins = Math.floor(seconds / 60);
-      const secs = Math.floor(seconds % 60);
-      return `${mins}:${secs < 10 ? "0" : ""}${secs}`;
+  // Format detik ke mm:ss
+  function formatTime(seconds) {
+    const mins = Math.floor(seconds / 60) || 0;
+    const secs = Math.floor(seconds % 60) || 0;
+    return `${mins}:${secs < 10 ? "0" : ""}${secs}`;
+  }
+
+  // Render playlist
+  function renderPlaylist(items) {
+    playlistData = items;
+    playlistContainer.innerHTML = "";
+    if (!items || items.length === 0) {
+      playlistContainer.innerHTML =
+        '<p class="col-span-full text-center text-gray-500 text-lg mt-10 select-none">No music found.</p>';
+      return;
     }
 
-    // ========== 1. FUNGSI SEARCH menggunakan API baru ==========
-    // API: https://apikuu-black.vercel.app/api/search/spotify?q=keyword
-    async function fetchSongs(query) {
-      if (!query.trim()) {
-        query = "CLBK"; // default fallback
-      }
-      try {
-        playlistContainer.innerHTML = `<div class="col-span-full flex justify-center items-center py-10"><div class="spinner w-8 h-8"></div><p class="text-gray-400 ml-3">Mencari "${query}"...</p></div>`;
-        const url = `https://apikuu-black.vercel.app/api/search/spotify?q=${encodeURIComponent(query)}`;
-        const response = await fetch(url);
-        const result = await response.json();
+    items.forEach(({ track_url, thumbnail, title, artist, album, duration, release_date }, index) => {
+      const item = document.createElement("button");
+      item.type = "button";
+      item.className =
+        "flex flex-col items-center bg-[#282828] rounded-lg p-3 shadow-md hover:shadow-[#1db954] transition cursor-pointer select-none focus:outline-none focus:ring-2 focus:ring-[#1db954]";
+      item.setAttribute("aria-label", `Play ${title} by ${artist}`);
+      item.innerHTML = `
+        <div class="w-28 h-28 mb-2 rounded-md overflow-hidden flex items-center justify-center bg-[#1db954]">
+          <img
+            src="${thumbnail}"
+            alt="Thumbnail of ${title} by ${artist}, album ${album}"
+            class="object-cover w-full h-full"
+            loading="lazy"
+            decoding="async"
+          />
+        </div>
+        <div class="w-full marquee mb-1">
+          <p class="text-white font-medium text-sm whitespace-nowrap">${title}</p>
+        </div>
+        <p class="text-gray-400 text-xs">${artist}</p>
+        <p class="text-gray-500 text-xs">${album} • ${duration}</p>
+        <p class="text-gray-600 text-[11px]">Released: ${release_date || '-'}</p>
+      `;
+      item.addEventListener("click", () => {
+        openPlayer(index);
+      });
+      playlistContainer.appendChild(item);
+    });
+  }
 
-        if (result.success && result.data && result.data.length > 0) {
-          // Mapping data dari API search ke struktur yang konsisten
-          const mappedSongs = result.data.map((item) => ({
-            track_url: item.track_url,
-            thumbnail: item.thumbnail || "https://placehold.co/400x400/png?text=No+Cover",
-            title: item.title || "Unknown Title",
-            artist: item.artist || "Unknown Artist",
-            duration: item.duration || "0:00",
-            album: item.album || "Single",
-            release_date: item.release_date || "Unknown",
-            preview_url: item.preview_url || null,
-          }));
-          renderPlaylist(mappedSongs);
-        } else {
-          renderPlaylist([]);
-          playlistContainer.innerHTML = `<p class="col-span-full text-center text-gray-500 text-lg mt-10 select-none">😔 Lagu "${query}" tidak ditemukan. Coba kata kunci lain.</p>`;
-        }
-      } catch (err) {
-        console.error("Search error:", err);
-        playlistContainer.innerHTML = `<p class="col-span-full text-center text-red-400 text-lg mt-10 select-none">Kesalahan jaringan, coba lagi nanti.</p>`;
+  // === API SEARCH PAKAI YANG BARU ===
+  async function fetchSongs(query) {
+    try {
+      playlistContainer.innerHTML =
+        '<p class="col-span-full text-center text-gray-400 text-lg mt-10 select-none">Loading...</p>';
+      const res = await fetch(
+        `https://apikuu-black.vercel.app/api/search/spotify?q=${encodeURIComponent(query)}`
+      );
+      const data = await res.json();
+      if (data.success && data.data) {
+        renderPlaylist(data.data);
+      } else {
         renderPlaylist([]);
       }
+    } catch (err) {
+      console.error(err);
+      renderPlaylist([]);
     }
+  }
 
-    // Render daftar lagu di grid playlist
-    function renderPlaylist(items) {
-      playlistData = items;
-      playlistContainer.innerHTML = "";
-      if (!items || items.length === 0) {
-        playlistContainer.innerHTML = `<p class="col-span-full text-center text-gray-500 text-lg mt-10 select-none">🎵 Tidak ada hasil. Coba kata kunci berbeda.</p>`;
-        return;
-      }
+  // === OPEN PLAYER + DOWNLOAD PAKAI API BARU ===
+  async function openPlayer(index) {
+    if (!playlistData[index]) return;
+    currentIndex = index;
+    const trackUrl = playlistData[index].track_url;
 
-      items.forEach((song, idx) => {
-        const card = document.createElement("button");
-        card.type = "button";
-        card.className = "group flex flex-col items-center bg-[#282828] rounded-xl p-3 shadow-md hover:shadow-[#1db954]/40 transition-all duration-200 cursor-pointer select-none focus:outline-none focus:ring-2 focus:ring-[#1db954] hover:bg-[#2a2a2a]";
-        card.setAttribute("aria-label", `Putar ${song.title} oleh ${song.artist}`);
-        card.innerHTML = `
-          <div class="w-28 h-28 mb-3 rounded-lg overflow-hidden flex items-center justify-center bg-gradient-to-br from-[#1db954]/40 to-[#0e7c36] shadow-md group-hover:scale-105 transition-transform duration-200">
-            <img
-              src="${song.thumbnail}"
-              alt="${song.title} - ${song.artist}"
-              class="object-cover w-full h-full"
-              loading="lazy"
-              decoding="async"
-              onerror="this.src='https://placehold.co/400x400/png?text=No+Cover'"
-            />
-          </div>
-          <div class="w-full marquee mb-1">
-            <p class="text-white font-medium text-sm whitespace-nowrap">${escapeHtml(song.title)}</p>
-          </div>
-          <p class="text-gray-400 text-xs">${escapeHtml(song.artist)}</p>
-          <p class="text-gray-500 text-xs">${song.album || "Single"} • ${song.duration}</p>
-        `;
-        card.addEventListener("click", () => openPlayer(idx));
-        playlistContainer.appendChild(card);
-      });
-    }
+    // Show loading spinner, hide content
+    playerLoading.classList.remove("hidden");
+    playerContent.classList.add("opacity-0", "pointer-events-none");
+    playPauseBtn.disabled = true;
+    prevBtn.disabled = true;
+    nextBtn.disabled = true;
+    downloadBtn.disabled = true;
+    playPauseBtn.innerHTML = '<i class="fas fa-play"></i>';
+    isPlaying = false;
+    audioPlayer.pause();
+    audioPlayer.src = "";
+    progressBar.value = 0;
+    currentTimeEl.textContent = "0:00";
+    durationTimeEl.textContent = "0:00";
 
-    // Helper sederhana untuk menghindari XSS
-    function escapeHtml(str) {
-      if (!str) return "";
-      return str.replace(/[&<>]/g, function(m) {
-        if (m === '&') return '&amp;';
-        if (m === '<') return '&lt;';
-        if (m === '>') return '&gt;';
-        return m;
-      });
-    }
+    playerModal.classList.remove("hidden");
 
-    // ========== 2. FUNGSI DOWNLOAD / STREAM menggunakan API download ==========
-    // API download: https://apikuu-black.vercel.app/api/download/spotify?url=track_url
-    async function fetchStreamAndDownload(trackUrl) {
-      const apiDownloadUrl = `https://apikuu-black.vercel.app/api/download/spotify?url=${encodeURIComponent(trackUrl)}`;
-      try {
-        const res = await fetch(apiDownloadUrl);
-        const data = await res.json();
-        if (data.status === true && data.download) {
-          // data.download adalah link MP3
-          return { success: true, downloadLink: data.download, metadata: data.metadata };
-        } else {
-          return { success: false, error: "Gagal mendapatkan link download" };
-        }
-      } catch (err) {
-        console.error("Download API Error:", err);
-        return { success: false, error: err.message };
-      }
-    }
+    try {
+      // Ambil data lagu dari API download yang baru
+      const apiUrl = `https://apikuu-black.vercel.app/api/download/spotify?url=${encodeURIComponent(trackUrl)}`;
+      const res = await fetch(apiUrl);
+      const json = await res.json();
 
-    // ========== 3. MEMBUKA PLAYER DENGAN LAGU DARI API DOWNLOAD ==========
-    async function openPlayer(index) {
-      if (!playlistData[index]) return;
-      currentIndex = index;
-      const selectedSong = playlistData[currentIndex];
-      const trackUrl = selectedSong.track_url;
+      if (json.status && json.download) {
+        const title = playlistData[index].title;
+        const artist = playlistData[index].artist;
+        const cover = playlistData[index].thumbnail;
+        const music = json.download;
 
-      // Reset UI loading
-      playerLoading.classList.remove("hidden");
-      playerContent.classList.add("opacity-0", "pointer-events-none");
-      playPauseBtn.disabled = true;
-      prevBtn.disabled = true;
-      nextBtn.disabled = true;
-      downloadBtn.disabled = true;
-      // Reset tombol play
-      playPauseBtn.innerHTML = '<i class="fas fa-play"></i>';
-      isPlaying = false;
-      audioPlayer.pause();
-      audioPlayer.src = "";
-      progressBar.value = 0;
-      currentTimeEl.textContent = "0:00";
-      durationTimeEl.textContent = "0:00";
-      currentDownloadUrl = null;
-      
-      // Tampilkan info dasar sementara
-      playerTitle.textContent = selectedSong.title;
-      playerArtist.textContent = selectedSong.artist;
-      playerCover.src = selectedSong.thumbnail;
-      
-      // Update mini player juga sementara
-      updateMiniPlayer(selectedSong.title, selectedSong.artist, selectedSong.thumbnail);
-      
-      playerModal.classList.remove("hidden");
+        // Update UI
+        playerTitle.textContent = title;
+        playerArtist.textContent = artist;
+        playerCover.src = cover;
 
-      // Panggil API download untuk mendapatkan streaming link
-      const streamData = await fetchStreamAndDownload(trackUrl);
-      
-      if (streamData.success && streamData.downloadLink) {
-        const mp3Url = streamData.downloadLink;
-        currentDownloadUrl = mp3Url;
-        
-        // Set metadata tambahan dari response jika ada cover lebih baik
-        if (streamData.metadata && streamData.metadata.cover) {
-          playerCover.src = streamData.metadata.cover;
-          updateMiniPlayer(selectedSong.title, selectedSong.artist, streamData.metadata.cover);
-        }
-        
-        // Siapkan audio player
-        audioPlayer.src = mp3Url;
+        // Setup tombol download
+        downloadBtn.disabled = false;
+        downloadBtn.onclick = () => {
+          const a = document.createElement("a");
+          a.href = music;
+          a.download = `${title}.mp3`;
+          document.body.appendChild(a);
+          a.click();
+          document.body.removeChild(a);
+        };
+
+        // Load audio
+        audioPlayer.src = music;
         audioPlayer.load();
-        
-        // Event ketika metadata siap
+
+        // Enable buttons after metadata loaded
         audioPlayer.onloadedmetadata = () => {
-          const durationSec = audioPlayer.duration;
-          durationTimeEl.textContent = formatTime(durationSec);
-          progressBar.max = Math.floor(durationSec) || 100;
-          miniProgressBar.max = Math.floor(durationSec) || 100;
-          
-          // Aktifkan tombol kontrol
+          durationTimeEl.textContent = formatTime(audioPlayer.duration);
+          progressBar.max = Math.floor(audioPlayer.duration);
           playPauseBtn.disabled = false;
-          prevBtn.disabled = (currentIndex <= 0);
-          nextBtn.disabled = (currentIndex >= playlistData.length - 1);
-          downloadBtn.disabled = false;
-          
-          // Sembunyikan loading & tampilkan konten
+          prevBtn.disabled = currentIndex <= 0;
+          nextBtn.disabled = currentIndex >= playlistData.length - 1;
+
+          // Hide loading spinner, show content
           playerLoading.classList.add("hidden");
           playerContent.classList.remove("opacity-0", "pointer-events-none");
-          
-          // Auto play setelah load selesai
-          playAudio();
         };
-        
-        // Update progress bar
+
         audioPlayer.ontimeupdate = () => {
-          if (audioPlayer.duration) {
-            const current = audioPlayer.currentTime;
-            progressBar.value = Math.floor(current);
-            currentTimeEl.textContent = formatTime(current);
-            updateMiniProgress(current);
-          }
+          progressBar.value = Math.floor(audioPlayer.currentTime);
+          currentTimeEl.textContent = formatTime(audioPlayer.currentTime);
+          updateMiniProgress(audioPlayer.currentTime);
         };
-        
+
         audioPlayer.onended = () => {
           isPlaying = false;
           playPauseBtn.innerHTML = '<i class="fas fa-play"></i>';
           miniPlayPauseBtn.innerHTML = '<i class="fas fa-play"></i>';
         };
-        
-        audioPlayer.onerror = () => {
-          playerTitle.textContent = "Error: Gagal memutar lagu";
-          playerLoading.classList.add("hidden");
-          playerContent.classList.remove("opacity-0", "pointer-events-none");
-          playPauseBtn.disabled = true;
-        };
-        
+
+        // Update mini player info and show it
+        updateMiniPlayer(title, artist, cover);
+        showMiniPlayer();
+
       } else {
-        // Gagal mendapatkan stream
-        playerTitle.textContent = "Gagal memuat lagu ❌";
-        playerArtist.textContent = "Coba lagu lain atau periksa koneksi";
+        playerTitle.textContent = "Failed to load track data";
+        playerCover.src = "https://placehold.co/400x400/png?text=No+Cover";
         playerLoading.classList.add("hidden");
         playerContent.classList.remove("opacity-0", "pointer-events-none");
-        playPauseBtn.disabled = true;
-        console.error("Stream fetch failed:", streamData.error);
       }
+    } catch (error) {
+      console.error(error);
+      playerTitle.textContent = "Error loading track";
+      playerCover.src = "https://placehold.co/400x400/png?text=No+Cover";
+      playerLoading.classList.add("hidden");
+      playerContent.classList.remove("opacity-0", "pointer-events-none");
     }
-    
-    // Fungsi Play/Pause
-    function playAudio() {
-      if (!audioPlayer.src) return;
-      audioPlayer.play().then(() => {
-        isPlaying = true;
-        playPauseBtn.innerHTML = '<i class="fas fa-pause"></i>';
-        miniPlayPauseBtn.innerHTML = '<i class="fas fa-pause"></i>';
-      }).catch(err => {
-        console.warn("Autoplay ditolak browser:", err);
-        isPlaying = false;
-        playPauseBtn.innerHTML = '<i class="fas fa-play"></i>';
-        miniPlayPauseBtn.innerHTML = '<i class="fas fa-play"></i>';
-      });
+  }
+
+  // Play / Pause manual
+  function playAudio() {
+    audioPlayer.play().then(() => {
+      isPlaying = true;
+      playPauseBtn.innerHTML = '<i class="fas fa-pause"></i>';
+      miniPlayPauseBtn.innerHTML = '<i class="fas fa-pause"></i>';
+    }).catch(err => console.error("Play blocked:", err));
+  }
+
+  function pauseAudio() {
+    audioPlayer.pause();
+    isPlaying = false;
+    playPauseBtn.innerHTML = '<i class="fas fa-play"></i>';
+    miniPlayPauseBtn.innerHTML = '<i class="fas fa-play"></i>';
+  }
+
+  // Toggle play/pause
+  playPauseBtn.addEventListener("click", () => {
+    if (!audioPlayer.src) return;
+    if (isPlaying) {
+      pauseAudio();
+    } else {
+      playAudio();
     }
-    
-    function pauseAudio() {
-      audioPlayer.pause();
-      isPlaying = false;
-      playPauseBtn.innerHTML = '<i class="fas fa-play"></i>';
-      miniPlayPauseBtn.innerHTML = '<i class="fas fa-play"></i>';
+  });
+
+  // Seek progress
+  progressBar.addEventListener("input", () => {
+    if (!audioPlayer.src) return;
+    audioPlayer.currentTime = progressBar.value;
+    currentTimeEl.textContent = formatTime(audioPlayer.currentTime);
+    updateMiniProgress(audioPlayer.currentTime);
+  });
+
+  // Close player modal but keep playing music and show mini player
+  closePlayerBtn.addEventListener("click", () => {
+    playerModal.classList.add("hidden");
+    showMiniPlayer();
+  });
+
+  // Prev button functionality
+  prevBtn.addEventListener("click", () => {
+    if (currentIndex > 0) {
+      openPlayer(currentIndex - 1);
     }
-    
-    // ========== 4. EVENT LISTENER UNTUK KONTROL ==========
-    playPauseBtn.addEventListener("click", () => {
-      if (!audioPlayer.src) return;
-      if (isPlaying) {
-        pauseAudio();
-      } else {
-        playAudio();
-      }
-    });
-    
-    progressBar.addEventListener("input", (e) => {
-      if (!audioPlayer.src) return;
-      const val = parseFloat(e.target.value);
-      audioPlayer.currentTime = val;
-      currentTimeEl.textContent = formatTime(val);
-      updateMiniProgress(val);
-    });
-    
-    // Prev & Next logic
-    prevBtn.addEventListener("click", () => {
-      if (currentIndex > 0) {
-        openPlayer(currentIndex - 1);
-      }
-    });
-    
-    nextBtn.addEventListener("click", () => {
-      if (currentIndex < playlistData.length - 1) {
-        openPlayer(currentIndex + 1);
-      }
-    });
-    
-    // Download menggunakan link yang sudah didapat dari API download
-    downloadBtn.addEventListener("click", () => {
-      if (currentDownloadUrl && playlistData[currentIndex]) {
-        const songTitle = playlistData[currentIndex].title;
-        const a = document.createElement("a");
-        a.href = currentDownloadUrl;
-        a.download = `${songTitle}.mp3`;
-        document.body.appendChild(a);
-        a.click();
-        document.body.removeChild(a);
-      } else {
-        alert("Tautan download belum siap, coba lagi nanti.");
-      }
-    });
-    
-    // Tutup modal, tetap tampilkan mini player
-    closePlayerBtn.addEventListener("click", () => {
-      playerModal.classList.add("hidden");
-      if (audioPlayer.src && !audioPlayer.paused) {
-        showMiniPlayer();
-      } else if (audioPlayer.src) {
-        showMiniPlayer();
-      } else {
-        hideMiniPlayer();
-      }
-    });
-    
-    // MINI PLAYER CONTROLS
-    miniPlayPauseBtn.addEventListener("click", () => {
-      if (!audioPlayer.src) return;
-      if (isPlaying) {
-        pauseAudio();
-      } else {
-        playAudio();
-      }
-    });
-    
-    miniCloseBtn.addEventListener("click", () => {
-      audioPlayer.pause();
-      audioPlayer.src = "";
-      isPlaying = false;
-      hideMiniPlayer();
-      playerModal.classList.add("hidden");
-      // reset state
-      currentIndex = -1;
-    });
-    
-    miniProgressBar.addEventListener("input", (e) => {
-      if (!audioPlayer.src) return;
-      const val = parseFloat(e.target.value);
-      audioPlayer.currentTime = val;
-      progressBar.value = val;
-      currentTimeEl.textContent = formatTime(val);
-    });
-    
-    // Fungsi update mini player info
-    function updateMiniPlayer(title, artist, cover) {
-      miniTitle.textContent = title;
-      miniArtist.textContent = artist;
-      miniCover.src = cover;
+  });
+
+  // Next button functionality
+  nextBtn.addEventListener("click", () => {
+    if (currentIndex < playlistData.length - 1) {
+      openPlayer(currentIndex + 1);
     }
-    
-    function showMiniPlayer() {
-      if (audioPlayer.src) miniPlayer.classList.remove("hidden");
+  });
+
+  // Mini player controls
+  miniPlayPauseBtn.addEventListener("click", () => {
+    if (!audioPlayer.src) return;
+    if (isPlaying) {
+      pauseAudio();
+    } else {
+      playAudio();
     }
-    
-    function hideMiniPlayer() {
-      miniPlayer.classList.add("hidden");
-    }
-    
-    function updateMiniProgress(currentTime) {
-      if (audioPlayer.duration) {
-        miniProgressBar.max = Math.floor(audioPlayer.duration);
-        miniProgressBar.value = Math.floor(currentTime);
-      }
-    }
-    
-    // Saat halaman dimuat, ambil default search "CLBK" sesuai permintaan
-    const defaultQuery = "CLBK";
-    fetchSongs(defaultQuery);
-    searchInput.value = defaultQuery;
-    
-    // Search live debounce
-    let debounceTimer;
-    searchInput.addEventListener("input", (e) => {
-      clearTimeout(debounceTimer);
-      debounceTimer = setTimeout(() => {
-        let query = e.target.value.trim();
-        if (query === "") {
-          query = "CLBK";
-          searchInput.value = query;
-        }
+  });
+
+  miniCloseBtn.addEventListener("click", () => {
+    audioPlayer.pause();
+    audioPlayer.src = "";
+    isPlaying = false;
+    hideMiniPlayer();
+    // Also close modal if open
+    playerModal.classList.add("hidden");
+  });
+
+  miniProgressBar.addEventListener("input", () => {
+    if (!audioPlayer.src) return;
+    audioPlayer.currentTime = miniProgressBar.value;
+    currentTimeEl.textContent = formatTime(audioPlayer.currentTime);
+    progressBar.value = miniProgressBar.value;
+  });
+
+  // Update mini player info
+  function updateMiniPlayer(title, artist, cover) {
+    miniTitle.textContent = title;
+    miniArtist.textContent = artist;
+    miniCover.src = cover;
+  }
+
+  // Show mini player
+  function showMiniPlayer() {
+    miniPlayer.classList.remove("hidden");
+  }
+
+  // Hide mini player
+  function hideMiniPlayer() {
+    miniPlayer.classList.add("hidden");
+  }
+
+  // Update mini player progress bar
+  function updateMiniProgress(currentTime) {
+    miniProgressBar.value = Math.floor(currentTime);
+    miniProgressBar.max = Math.floor(audioPlayer.duration) || 100;
+  }
+
+  // Default search (pake CLBK biar sesuai contoh)
+  fetchSongs("CLBK");
+
+  // Search debounce
+  let typingTimer;
+  searchInput.addEventListener("input", (e) => {
+    clearTimeout(typingTimer);
+    typingTimer = setTimeout(() => {
+      const query = e.target.value.trim();
+      if (query.length > 0) {
         fetchSongs(query);
-      }, 400);
-    });
-    
-    // Menampilkan mini player secara otomatis jika modal ditutup dan audio sedang diputar
-    audioPlayer.addEventListener("play", () => {
-      showMiniPlayer();
-    });
-    
-    // Ketika audio berhenti total, mini player tetap bisa muncul jika ada src
-    // Tapi jika src dihapus, sembunyikan
-    window.addEventListener("click", (e) => {
-      if (!playerModal.classList.contains("hidden")) return;
-      if (audioPlayer.src && !audioPlayer.paused) showMiniPlayer();
-      else if (audioPlayer.src && audioPlayer.paused) showMiniPlayer();
-      else hideMiniPlayer();
-    });
+      } else {
+        fetchSongs("CLBK");
+      }
+    }, 500);
+  });
   </script>
-</body>
+ </body>
 </html>
